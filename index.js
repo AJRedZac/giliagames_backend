@@ -17,7 +17,8 @@ app.use(express.json());
 app.post('/visits', async (req, res) => {
   try {
     const visit = new Visit({
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      visitorId: String,
+      ip: (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(),
       path: req.body.path || req.originalUrl,
       userAgent: req.headers['user-agent']
     });
