@@ -1,0 +1,9 @@
+{
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "cmd": "npm install"
+  },
+  "start": "node index.js"
+}
