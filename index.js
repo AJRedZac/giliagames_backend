@@ -1,17 +1,15 @@
 const express = require('express');
-const app = express();
-const port = process.env.PORT || 3000;
 const mongoose = require('mongoose');
+const Visit = require('./models/visit');
+const app = express();
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('✅ Conectado a MongoDB'))
-.catch((err) => console.error('❌ Error al conectar a MongoDB:', err));
-const Visit = require('./models/visit');
+app.use(express.json());
 
-
+// Middleware para log de visitas
 app.use(async (req, res, next) => {
   try {
     const visit = new Visit({
@@ -21,9 +19,20 @@ app.use(async (req, res, next) => {
     });
     await visit.save();
   } catch (err) {
-    console.error('❌ Error al guardar visita:', err);
+    console.error('❌ Error al guardar visita:', err.message);
   }
   next();
+});
+
+// Rutas
+app.get('/', (req, res) => {
+  res.send('¡Bienvenido a Gilia Games Backend!');
+});
+
+app.post('/contact', (req, res) => {
+  const { name, email, message } = req.body;
+  console.log(`Nuevo mensaje de ${name} <${email}>: ${message}`);
+  res.json({ success: true, message: 'Mensaje recibido' });
 });
 
 app.get('/visits', async (req, res) => {
@@ -35,22 +44,17 @@ app.get('/visits', async (req, res) => {
   }
 });
 
+// 🔥 ARRANQUE SEGURO DEL SERVIDOR
+const port = process.env.PORT || 3000;
 
-// Middleware para procesar JSON
-app.use(express.json());
-
-// Ruta raíz
-app.get('/', (req, res) => {
-  res.send('¡Bienvenido a Gilia Games Backend!');
-});
-
-// Ruta de contacto (ejemplo)
-app.post('/contact', (req, res) => {
-  const { name, email, message } = req.body;
-  console.log(`Nuevo mensaje de ${name} <${email}>: ${message}`);
-  res.json({ success: true, message: 'Mensaje recibido' });
-});
-
-app.listen(port, () => {
-  console.log(`Servidor corriendo en puerto ${port}`);
-});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ Conectado a MongoDB');
+    app.listen(port, () => {
+      console.log(`Servidor corriendo en puerto ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Error al conectar a MongoDB:', err.message);
+    process.exit(1); // opcional, evita dejar un servidor colgado
+  });
