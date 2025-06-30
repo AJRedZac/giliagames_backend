@@ -2,6 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Visit = require('./models/visit');
 const app = express();
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'https://www.giliagames.com', // Cambia esto por tu dominio real en Porkbun
+}));
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
