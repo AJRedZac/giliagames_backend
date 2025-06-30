@@ -14,20 +14,22 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(express.json());
 
-// Middleware para log de visitas
-app.use(async (req, res, next) => {
+app.post('/visits', async (req, res) => {
   try {
     const visit = new Visit({
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-      path: req.originalUrl,
+      path: req.body.path || req.originalUrl,
       userAgent: req.headers['user-agent']
     });
+
     await visit.save();
+    res.json({ success: true, message: 'Visita registrada' });
   } catch (err) {
-    console.error('❌ Error al guardar visita:', err.message);
+    console.error('❌ Error al guardar visita:', err);
+    res.status(500).json({ success: false, error: 'Error al registrar visita' });
   }
-  next();
 });
+
 
 // Rutas
 app.get('/', (req, res) => {
