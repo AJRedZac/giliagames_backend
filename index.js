@@ -57,7 +57,7 @@ app.post('/contact', async (req, res) => {
   });
 
   const mailOptions = {
-    from: '"${name} via Gilia Games" <contact@giliagames.com>',
+    from: `${name} via Gilia Games <contact@giliagames.com>`,
     to: 'contact@giliagames.com', // o también puedes usar process.env.EMAIL_USER
     replyTo: email, // este es el correo del visitante
     subject: `Nuevo mensaje de ${name}`,
