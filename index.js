@@ -6,7 +6,8 @@ const app = express();
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'https://giliagames.com', // Cambia esto por tu dominio real en Porkbun
+  origin: 'https://giliagames.com' // Cambia esto por tu dominio real en Porkbun
+  
 }));
 
 if (process.env.NODE_ENV !== 'production') {
@@ -56,11 +57,11 @@ app.post('/contact', async (req, res) => {
   });
 
   const mailOptions = {
-    from: `"${name}" <${email}>`,
-    to: process.env.EMAIL_TO,
+    from: '"${name} via Gilia Games" <contact@giliagames.com>',
+    to: 'contact@giliagames.com', // o también puedes usar process.env.EMAIL_USER
+    replyTo: email, // este es el correo del visitante
     subject: `Nuevo mensaje de ${name}`,
     html: `
-      <h3>Nuevo mensaje del formulario</h3>
       <p><strong>Nombre:</strong> ${name}</p>
       <p><strong>Correo:</strong> ${email}</p>
       <p><strong>Mensaje:</strong><br>${message}</p>
