@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const express = require('express');
 const mongoose = require('mongoose');
 const Visit = require('./models/visit');
@@ -37,10 +38,43 @@ app.get('/', (req, res) => {
   res.send('¡Bienvenido a Gilia Games Backend!');
 });
 
-app.post('/contact', (req, res) => {
+app.post('/contact', async (req, res) => {
   const { name, email, message } = req.body;
-  console.log(`Nuevo mensaje de ${name} <${email}>: ${message}`);
-  res.json({ success: true, message: 'Mensaje recibido' });
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, message: 'Faltan campos obligatorios.' });
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.porkbun.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: `"${name}" <${email}>`,
+    to: process.env.EMAIL_TO,
+    subject: `Nuevo mensaje de ${name}`,
+    html: `
+      <h3>Nuevo mensaje del formulario</h3>
+      <p><strong>Nombre:</strong> ${name}</p>
+      <p><strong>Correo:</strong> ${email}</p>
+      <p><strong>Mensaje:</strong><br>${message}</p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Mensaje enviado por ${name} <${email}>`);
+    res.json({ success: true, message: 'Mensaje enviado correctamente.' });
+  } catch (err) {
+    console.error('Error al enviar correo:', err);
+    res.status(500).json({ success: false, message: 'Error al enviar el correo.' });
+  }
 });
 
 app.get('/visits', async (req, res) => {
